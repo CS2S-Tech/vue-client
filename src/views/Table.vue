@@ -5,19 +5,21 @@
     </b-button>
 
     <h2>{{ uid }}</h2>
-    <h3>{{ nodes.location }} - {{ nodes.sublocation }}</h3>
+    <div v-if="nodes !== {}">
+      <h3>{{ nodes.location }} - {{ nodes.sublocation }}</h3>
+    </div>
     <b-table :busy="loading" filter="/.*/" :filter-function="filterReadings" striped sticky-header hover :items="readings" :fields="fields" >
       <template #cell(datetime)="dt">
         {{ new Date(dt.value).toLocaleString(undefined, {timeZone: 'Asia/Kolkata'})  }}
       </template>
       <template #cell(temperature)="dt">
-        {{ dt.value }} &deg;C
+        {{ dt.item.temperature }} &deg;C
       </template>
       <template #cell(co2)="dt">
-        {{ dt.value }} %
+        {{ dt.item.co2 }} %
       </template>
       <template #cell(humidity)="dt">
-        {{ dt.value }} %
+        {{ dt.item.humidity }} %
       </template>
       <template #table-busy>
         <div class="text-center text-info my-2">
@@ -44,7 +46,7 @@ export default {
       to: this.$route.params.to,
       fields: ['datetime'],
       loading: true,
-      nodes: null,
+      nodes: {},
       readings: []
     }
   },
@@ -71,13 +73,13 @@ export default {
       this.$store.dispatch('fetchNode', this.uid).then(data => {
         this.nodes = data
         if (data.isTemperature) {
-          this.fields.push('temperature')
+          this.fields.push(this.$t('params.param1'))
         }
         if (data.isHumidity) {
-          this.fields.push('humidity')
+          this.fields.push(this.$t('params.param2'))
         }
         if (data.isCO2) {
-          this.fields.push('co2')
+          this.fields.push(this.$t('params.param3'))
         }
       })
     },

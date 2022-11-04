@@ -12,12 +12,21 @@ import VueI18n from 'vue-i18n'
 import VueNativeNotification from 'vue-native-notification'
 // import './registerServiceWorker'
 
+import { dynText } from './textPool/textPool.js'
+
 Vue.config.productionTip = false
+
+Vue.use(VueI18n)
+const i18n = new VueI18n({
+  locale: 'en',
+  messages: {
+    "en": dynText
+  }
+})
 
 // HighchartsVue.dateFormat("Month: %m Day: %d Year: %Y", 20, false)
 Vue.use(Vuebar)
 Vue.use(VueLoaders)
-Vue.use(VueI18n)
 Vue.use(HighchartsVue)
 Vue.use(VueNativeNotification)
 
@@ -34,5 +43,6 @@ try {
 new Vue({
   store,
   router,
-  render: h => h(App)
+  render: h => h(App),
+  i18n,
 }).$mount('#app')

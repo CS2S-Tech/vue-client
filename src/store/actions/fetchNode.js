@@ -6,6 +6,11 @@ const fetchNode = async (state, uid) => {
       })
     })
       .then(res => {
+        if (res.status > 401) {
+          state.commit('purgeToken')
+          state.commit('purgeDesignation')
+          return {}
+        }
         return res.json()
       })
       .then(data => {

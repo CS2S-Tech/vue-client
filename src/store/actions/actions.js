@@ -13,6 +13,7 @@ import deleteNode from './deleteNode'
 import fetchTrend from './fetchTrend'
 import fetchNode from './fetchNode'
 import fetchSetpoint from './fetchSetpoints'
+import fetchStats from './fetchStats'
 import fetchProfile from './fetchProfile'
 import sendResetLink from './sendResetLink'
 import resetPassword from './resetPassword'
@@ -62,6 +63,7 @@ export default  {
   sendResetLink,
   fetchProfile,
   fetchSetpoint,
+  fetchStats,
   fetchLogs,
   deleteUser,
   createdUsers,

@@ -24,3 +24,8 @@ export const setLocalDesignation = (des) => {
 export const purgeLocalDesignation = () => {
   return window.localStorage.removeItem(DESIG_ID)
 }
+
+export const purgeLocalIdentity = () => {
+  purgeJWT()
+  purgeLocalDesignation()
+}

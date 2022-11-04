@@ -5,13 +5,7 @@
     </div>
     <TitleBar />
     <div class="container">
-      <b-breadcrumb
-          class="no-print"
-          :items="[
-                   { text: 'Home', href: '/' },
-                   { text: $route.name, href: $route.path }
-                   ]">
-      </b-breadcrumb>
+      <b-breadcrumb class="no-print" :items="[ { text: 'Home', href: '/' }, { text: $route.name, href: $route.path } ]"> </b-breadcrumb>
       <router-view></router-view>
     </div>
     <footer class="main" v-if="this.$route.meta.footer">

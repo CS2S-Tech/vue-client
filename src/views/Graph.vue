@@ -3,34 +3,64 @@
     <h1>Trend for {{ uid }} </h1>
     <div v-if="node">
       <h2>{{ node.location }} - {{ node.sublocation }}</h2>
-      <table>
+      <table class="table">
         <tbody>
           <tr>
             <th>Parameter</th>
             <th>Min</th>
             <th>Max</th>
+            <th>Mean</th>
+            <th>Standard Deviation</th>
+            <th>Variance</th>
           </tr>
           <tr v-if="node.isTemperature">
-            <td>Temperature</td>
+            <td>{{ $t('params.param1') }}</td>
             <td>{{ node.temperatureRange.min }}</td>
             <td>{{ node.temperatureRange.max }}</td>
+
+<!--
+{
+  "co2Mean": null,
+  "co2Sigma": null,
+  "faulty_readings": 2,
+  "humidityMean": null,
+  "humiditySigma": null,
+  "temperatureMean": 87.29724770642203,
+  "temperatureSigma": 417.4485495189427,
+  "uid": "ABCDEF"
+}
+-->
+            <td>{{ stats.temperatureMean }}</td>
+            <td>{{ stats.temperatureSigma }}</td>
+            <td>{{ stats.temperatureSigma*stats.temperatureSigma }}</td>
           </tr>
           <tr v-if="node.isHumidity">
-            <td>Humidity</td>
+            <td>{{ $t('params.param2') }}</td>
+            <td>{{ node.temperatureRange.min }}</td>
             <td>{{ node.humidityRange.min }}</td>
             <td>{{ node.humidityRange.max }}</td>
+
+            <td>{{ stats.humidityMean }}</td>
+            <td>{{ stats.humiditySigma }}</td>
+            <td>{{ stats.humiditySigma*stats.humiditySigma }}</td>
           </tr>
           <tr v-if="node.isCO2">
-            <td>CO2</td>
+            <td>{{ $t('params.param3') }}</td>
             <td>{{ node.co2Range.min }}</td>
             <td>{{ node.co2Range.max }}</td>
+
+            <td>{{ stats.co2Mean }}</td>
+            <td>{{ stats.co2Sigma }}</td>
+            <td>{{ stats.co2Sigma*stats.co2Sigma }}</td>
           </tr>
         </tbody>
       </table>
+      <hr>
       Showing From
       <b>{{ formateDate(from) }}</b>
       to
       <b>{{ formateDate(to) }}</b>
+      <p> Total readings beyond setpoints: {{ stats.faulty_readings }} </p>
     </div>
     <vue-loaders-ball-beat color="grey" scale="1" v-if="loading"/>
       <div v-else>
@@ -81,7 +111,14 @@ export default {
       from: this.from,
       to: this.to
     })
-      .then(this.constructData)
+    .then(this.constructData)
+
+    this.$store.dispatch('fetchStats', {
+      uid: this.uid,
+      }).then(d => {
+        console.log({d})
+        this.stats = {...d}
+        })
     this.loading = false
   },
   data() {
@@ -92,6 +129,7 @@ export default {
       to: this.$route.params.to,
       loading: true,
       chartData: [],
+      stats: {},
       chartOptions: {
         credits: false,
         title: {
@@ -177,7 +215,7 @@ export default {
       let idx = 0
       if (this.node.isCO2) {
         this.chartOptions.series.push({
-          name: 'CO2',
+          name: this.$t('params.param3'),
           data: []
         })
         this.chartOptions.series[idx].data.push(...co2)
@@ -185,7 +223,7 @@ export default {
       }
       if (this.node.isTemperature) {
         this.chartOptions.series.push({
-          name: 'Temperature',
+          name: this.$t('params.param1'),
           data: []
         })
         this.chartOptions.series[idx].data.push(...temperature)
@@ -193,7 +231,7 @@ export default {
       }
       if (this.node.isHumidity) {
         this.chartOptions.series.push({
-          name: 'Humidity',
+          name: this.$t('params.param2'),
           data: []
         })
         this.chartOptions.series[idx].data.push(...humidity)

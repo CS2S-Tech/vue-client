@@ -38,7 +38,7 @@
                 </td>
               </tr>
               <tr v-if="sensor.isTemperature">
-                <td>Temperature</td>
+                <td>{{ $t('params.param1') }}</td>
                 <td
                     class="value"
                     :class="{
@@ -49,7 +49,7 @@
                 </td>
               </tr>
               <tr v-if="sensor.isHumidity">
-                <td>Humidity</td>
+                <td>{{ $t('params.param2') }}</td>
                 <td
                     class="value"
                     :class="{
@@ -60,7 +60,7 @@
                 </td>
               </tr>
               <tr v-if="sensor.isCO2">
-                <td>CO<sub>2</sub></td>
+                <td>{{ $t('params.param3') }}</td>
                 <td
                     class="value"
                     :class="{
