@@ -1,6 +1,6 @@
 const addNode = async (state, node) => {
   return new Promise((res, rej) => {
-    fetch(process.env.VUE_APP_HOST +  '/server/' + '/node/add', {
+    fetch(process.env.VUE_APP_HOST +  '/server' + '/node/add', {
       headers: new Headers({
         'Authorization': 'Bearer ' + state.getters.getAccessToken,
         'Content-Type': 'application/json'

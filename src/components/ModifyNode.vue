@@ -13,36 +13,24 @@
         <b-form-input id="node_mac" v-model.trim="modifyNodeForm.mac" placeholder="Enter Machine"></b-form-input>
       </b-form-group>
 
-      <b-form-checkbox id="_isTemp" v-model.trim="isTemp" name="checkbox1" >
-        {{ $t('params.param1') }}
-      </b-form-checkbox>
+      <b-table v-if="modifyNodeForm.parameters.length > 0" striped hover :items="modifyNodeForm.parameters" :fields="paramLabels">
+      <template #cell(actions)="row">
+        <b-button @click="deleteParam(row)"><DeleteIcon /></b-button>
+      </template>
+    </b-table>
 
-        <b-form-group v-if="isTemp" :label="`${$t('params.param1')} Range: `" label-for="node_temperaturer" :description="`Please enter ${$t('params.param1')} Range`" >
-          <b-form-input class="range" type="number" id="node_temperaturen" v-model.trim="modifyNodeForm.temperaturen" :placeholder="`Enter ${$t('params.param1')} Min`"></b-form-input>
-          <b-form-input class="range" type="number" id="node_temperaturex" v-model.trim="modifyNodeForm.temperaturex" :placeholder="`Enter ${$t('params.param1')} Max`"></b-form-input>
-        </b-form-group>
+    <b-form-group label="Add parameters: " v-if="labels.length > 0">
+      <b-form-select v-model="curLabel" :options="labels"></b-form-select>
+      <b-form-group label="Range: " class="mt-2">
+        <b-form-input class="range" type="number" id="min" v-model.trim="curMin" placeholder="Enter Min value"></b-form-input>
+        <b-form-input class="range" type="number" id="max" v-model.trim="curMax" placeholder="Enter Max value"></b-form-input>
+      </b-form-group>
+        <b-button @click="addParameter()" variant="secondary"><AddIcon />Add Parameter</b-button>
+    </b-form-group>
 
-        <b-form-checkbox
-            id="_isHum" v-model.trim="isHum" name="checkbox2" >
-            {{ $t('params.param2') }}
-        </b-form-checkbox>
+    <hr>
 
-          <b-form-group v-if="isHum" :label="`${$t('params.param2')} Range: `" label-for="node_humidityr" :description="`Please enter ${$t('params.param2')} Range`" >
-            <b-form-input class="range" type="number" id="node_humidityn" v-model.trim="modifyNodeForm.humidityn" :placeholder="`Enter ${$t('params.param2')} Min`"></b-form-input>
-            <b-form-input class="range" type="number" id="node_humidityx" v-model.trim="modifyNodeForm.humidityx" :placeholder="`Enter ${$t('params.param2')} Max`"></b-form-input>
-          </b-form-group>
-
-          <b-form-checkbox
-              id="_isCO2" v-model.trim="isCO2" name="checkbox3" >
-              {{ $t('params.param3') }}
-          </b-form-checkbox>
-            <b-form-group v-if="isCO2" :label="`${$t('params.param3')} Range: `" label-for="node_co2r" :description="`Please enter ${$t('params.param3')} Range`" >
-              <b-form-input class="range" type="number" id="node_co2n" v-model.trim="modifyNodeForm.co2n" :placeholder="`Enter ${$t('params.param3')} Min`"></b-form-input>
-              <b-form-input class="range" type="number" id="node_co2x" v-model.trim="modifyNodeForm.co2x" :placeholder="`Enter ${$t('params.param3')} Max`"></b-form-input>
-            </b-form-group>
-          <hr>
-
-          <b-button @click="modifyNode()" variant="primary">Update Node</b-button>
+    <b-button @click="modifyNode()" variant="primary">Update Node</b-button>
 
     </b-form>
 </template>
@@ -55,28 +43,12 @@ export default {
     async modifyNode() {
       let node = {
         uid: this.modifyNodeForm.uid,
-        location: this.modifyNodeForm.loc,
-        sublocation: this.modifyNodeForm.sloc,
-        machineName: this.modifyNodeForm.mac,
-        co2Range: {
-          min: this.modifyNodeForm.co2n,
-          max: this.modifyNodeForm.co2x
+        metadata: {
+          location: this.modifyNodeForm.loc,
+          sublocation: this.modifyNodeForm.sloc,
+          machineName: this.modifyNodeForm.mac,
         },
-        temperatureRange: {
-          min: this.modifyNodeForm.temperaturen,
-          max: this.modifyNodeForm.temperaturex
-        },
-        pressureRange: {
-          min: this.modifyNodeForm.pressuren,
-          max: this.modifyNodeForm.pressurex
-        },
-        humidityRange: {
-          min: this.modifyNodeForm.humidityn,
-          max: this.modifyNodeForm.humidityx
-        },
-        isTemp: this.isTemp,
-        isHum: this.isHum,
-        isCO2: this.isCO2
+        parameters: []
       }
       this.$store.dispatch('modifyNode', node)
         .then(() => {
@@ -89,38 +61,33 @@ export default {
   },
   created() {
     this.modifyNodeForm = {
-      uid: this.sensor.uid,
-      loc: this.sensor.location,
-      sloc: this.sensor.sublocation,
-      mac: this.sensor.machineName,
-      co2n: parseFloat(this.sensor.co2Range.min),
-      co2x: parseFloat(this.sensor.co2Range.max),
-      temperaturen: parseFloat(this.sensor.temperatureRange.min),
-      temperaturex: parseFloat(this.sensor.temperatureRange.max),
-      humidityn: parseFloat(this.sensor.humidityRange.min),
-      humidityx: parseFloat(this.sensor.humidityRange.max),
+uid: this.sensor.uid,
+     metadata: {
+location: this.sensor.metadata.location,
+          subLocation: this.sensor.metadata.sublocation,
+          machineName: this.sensor.metadata.machineName
+     },
+parameters: this.sensor.parameters
     }
-    this.isTemp = this.sensor.isTemperature,
-    this.isHum= this.sensor.isHumidity,
-    this.isCO2 = this.sensor.isCO2
   },
   data() {
     return {
+      paramLabels: [
+        { key: 'label', label: 'Parameter'},
+        { key: 'min', label: 'Min'},
+        { key: 'max', label: 'Max'},
+        { key: 'unit', label: 'Unit'},
+        { key: 'actions', label: 'Actions'}
+      ],
       modifyNodeForm: {
-      uid: null,
-      loc: null,
-      sloc: null,
-      mac: null,
-      co2n: null,
-      co2x: null,
-      temperaturen: null,
-      temperaturex: null,
-      humidityn: null,
-      humidityx: null,
-      },
-      isTemp: null,
-      isHum: null,
-      isCO2: null
+        uid: '',
+        metadata: {
+          location: '',
+          subLocation: '',
+          machineName: ''
+        },
+        parameters: []
+      }
     }
   }
 }

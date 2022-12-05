@@ -8,7 +8,7 @@
           class="card drk"
           >
           <b-card-title class="copyable" @click="copyUID(sensor.uid)">UID: {{ sensor.uid }}</b-card-title>
-          <b-card-sub-title>{{ sensor.reading.user }}</b-card-sub-title>
+          <!--b-card-sub-title>{{ sensor.reading.user }}</b-card-sub-title-->
           <hr>
           <b-card-text >
 
@@ -18,7 +18,7 @@
                   Machine
                 </td>
             <td class="value" >
-              {{ sensor.machineName }}
+              {{ sensor.metadata.machineName }}
             </td>
               </tr>
               <tr>
@@ -26,7 +26,7 @@
                   Location
                 </td>
                 <td class="value">
-                  {{ sensor.location }}
+                  {{ sensor.metadata.location }}
                 </td>
               </tr>
               <tr>
@@ -34,49 +34,12 @@
                   Sub-location
                 </td>
                 <td class="value">
-                  {{ sensor.sublocation || "" }}
+                  {{ sensor.metadata.subLocation || "" }}
                 </td>
               </tr>
-              <tr v-if="sensor.isTemperature">
-                <td>{{ $t('params.param1') }}</td>
-                <td
-                    class="value"
-                    :class="{
-                            ok : checkOK(sensor.temperatureRange, sensor.reading.temperature),
-                            notok : !checkOK(sensor.temperatureRange, sensor.reading.temperature)}"
-                    >
-                    {{ sensor.reading.temperature || '-' }} &deg;C
-                </td>
-              </tr>
-              <tr v-if="sensor.isHumidity">
-                <td>{{ $t('params.param2') }}</td>
-                <td
-                    class="value"
-                    :class="{
-                            ok : checkOK(sensor.humidityRange, sensor.reading.humidity),
-                            notok : !checkOK(sensor.humidityRange, sensor.reading.humidity)}"
-                    >
-                    {{ sensor.reading.humidity || '-' }} %
-                </td>
-              </tr>
-              <tr v-if="sensor.isCO2">
-                <td>{{ $t('params.param3') }}</td>
-                <td
-                    class="value"
-                    :class="{
-                            ok : checkOK(sensor.co2Range, sensor.reading.co2),
-                            notok : !checkOK(sensor.co2Range, sensor.reading.co2)}"
-                    >
-                    {{ sensor.reading.co2 || '-'}} %
-                </td>
-              </tr>
-              <tr>
-                <td>Battery</td>
-                <td class="value" :style="{ok : true}">
-                  <BatteryFull title="Battery Full" v-if="parseInt(sensor.reading.battery) >= 90" class="ok" />
-                  <BatteryHalf title="Battery Normal" class="notbad" v-else-if="parseInt(sensor.reading.battery) >= 20 && parseInt(sensor.reading.battery ) < 90"/>
-                  <BatteryLow title="Battery Critical" class="notok" v-else/>
-                </td>
+              <tr v-for="parameter in sensor.parameters" :key="parameter.label">
+                <td>{{ parameter.label }} </td>
+                <td class="value">{{ getByLabel(sensor.reading, parameter.label).value }} </td>
               </tr>
             </table>
             <hr>
@@ -95,11 +58,10 @@
           </b-card-text>
           <template class="c-footer" #footer>
             <div>
-              Last Updated at: {{ formatDate(sensor.reading.datetime )}},
-              <br>
-              {{ checkOffline(sensor) }} ago
+             Last Update at: {{ formatDate(sensor.datetime) }}
+             <br>
+             {{ checkOffline(sensor) }} ago
             </div>
-
           </template>
       </b-card>
       </div>
@@ -115,16 +77,18 @@
 
 <script>
 
-import ModifyNodeForm from '@/components/ModifyNode.vue'
+import ModifyNodeForm from '@/components/AddNode.vue'
 
 import DeleteIcon from 'vue-material-design-icons/Delete.vue';
 import 'vue-loaders/dist/vue-loaders.css';
-import BatteryFull from 'vue-material-design-icons/Battery.vue';
-import BatteryLow from 'vue-material-design-icons/BatteryLow.vue';
-import BatteryHalf from 'vue-material-design-icons/Battery50.vue';
 import Pencil from 'vue-material-design-icons/Pencil.vue';
-// import { designationArray } from '../common/designation';
 import { mapGetters } from 'vuex';
+
+/* import ModifyNodeForm from '@/components/ModifyNode.vue' */
+/* import BatteryHalf from 'vue-material-design-icons/Battery50.vue'; */
+/* import BatteryFull from 'vue-material-design-icons/Battery.vue'; */
+/* import BatteryLow from 'vue-material-design-icons/BatteryLow.vue'; */
+// import { designationArray } from '../common/designation';
 
 export default {
   name: 'Cards',
@@ -137,16 +101,19 @@ export default {
   },
   components: {
     DeleteIcon,
-    BatteryFull,
-    BatteryHalf,
+    /* BatteryFull, */
+    /* BatteryHalf, */
+    /* BatteryLow, */
     ModifyNodeForm,
-    BatteryLow,
     Pencil
   },
   computed: {
     ...mapGetters({loading: 'isLoading'})
   },
   methods: {
+     getByLabel(values, label) {
+       return values.filter(f => f.label===label.toLocaleLowerCase())[0]
+     },
     copyUID (uid) {
       try {
         navigator.clipboard.writeText(uid.trim())
@@ -188,7 +155,7 @@ export default {
         })
     },
     checkOffline(sensor) {
-      const dt = Date.parse(sensor.reading.datetime)
+      const dt = new Date(sensor.datetime*1000) 
       const dateDiff_hrs = Math.floor((new Date() - dt) / 1000 / 3600 ) ;
       if (dateDiff_hrs > 24) {
         return Math.floor(dateDiff_hrs / 24) + " days"
@@ -196,7 +163,7 @@ export default {
       return dateDiff_hrs + " hrs"
     },
     formatDate(date) {
-      return new Date(date).toLocaleString('en-IN')
+      return new Date(date*1000).toLocaleString('en-IN')
     }
   }
 }

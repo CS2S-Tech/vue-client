@@ -1,6 +1,6 @@
 const fetchSensors = async (state) => {
   return new Promise((s, j) => {
-    fetch(process.env.VUE_APP_HOST + '/server/node', {
+    fetch(process.env.VUE_APP_HOST + '/server/node/', {
       headers: new Headers({
         'Authorization': 'Bearer '+state.getters.getAccessToken
       })

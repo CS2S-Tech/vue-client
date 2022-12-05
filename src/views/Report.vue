@@ -4,38 +4,22 @@
       <PrintIcon/>
     </b-button>
 
-    <b-table :busy="loading" striped sticky-header hover :items="$store.getters.getSensors" :fields="fields">
-      <template #cell(reading.temperature)="dt">
-        <span v-if="dt.item.reading.temperature">
-          {{ dt.item.reading.temperature }} &deg;C
-        </span>
-        <span v-else>
-          --
-        </span>
-      </template>
-      <template #cell(reading.humidity)="dt">
-        <span v-if="dt.item.reading.humidity">
-          {{ dt.item.reading.humidity }} %
-        </span>
-        <span v-else>
-          --
-        </span>
-      </template>
-      <template #cell(reading.co2)="dt">
-        <span v-if="dt.item.reading.co2">
-          {{ dt.item.reading.co2 }} %
-        </span>
-        <span v-else>
-          --
-        </span>
-      </template>
-      <template #table-busy>
-        <div class="text-center text-info my-2">
-          <b-spinner class="align-middle"></b-spinner>
-          <strong> Coming soon...</strong>
-        </div>
-      </template>
-    </b-table>
+    <table class="table ">
+       <thead>
+         <tr>
+           <th> UID </th>
+           <th> Location </th>
+           <th v-for="param in availableParameters" :key="param">{{ param }}</th>
+         </tr>
+       </thead>
+       <tbody>
+         <tr v-for="sensor in $store.getters.getSensors" :key="sensor.uid">
+           <th> {{ sensor.uid }}</th>
+           <th> {{ sensor.metadata.location }}</th>
+           <th v-for="param in availableParameters" :key="param">{{ getParamValue(sensor, param) }}</th>
+         </tr>
+       </tbody>
+    </table>
   </div>
 </template>
 
@@ -51,18 +35,12 @@ export default {
     return {
       loading: true,
       items: [],
+      availableParameters: ['Temperature', 'Humidity', 'CO2'],
       fields: [
         { key: 'uid', label: 'UID' },
-        { key: 'location', label: 'Location' },
-        // { key: 'temperatureRange.min', label: 'Min Temp' },
-        { key: 'reading.temperature', label: 'Current ' + this.$t('params.param1') },
-        // { key: 'temperatureRange.max', label: 'Max Temp' },
-        // { key: 'humidityRange.min', label: 'Min Hum' },
-        { key: 'reading.humidity', label: 'Cur ' + this.$t('params.param2') },
-        // { key: 'humidityRange.max', label: 'Max Hum' },
-        // { key: 'co2Range.min', label: 'Min CO2' },
-        { key: 'reading.co2', label: 'Cur ' + this.$t('params.param3') },
-        // { key: 'co2Range.max', label: 'Max CO2' },
+        { key: 'metadata.location', label: 'Location' },
+        { key: 'parameters.0.label', label: 'Parameters' },
+        { key: 'parameters.0.label', label: 'Parameters2' }
       ],
     }
   },
@@ -76,7 +54,17 @@ export default {
     async allNodesCurrentData() {
       this.items = this.$store.getters.getSensors
       this.loading = false
-
+    },
+    getParamValue(sensor,param) {
+      const expected = param.toLowerCase()
+      const match = sensor.reading.filter((x) => {
+        return x.label == expected
+      })[0]
+      if (match != undefined) {
+        return match.value
+      }
+      return "-"
+      
     }
   }
 

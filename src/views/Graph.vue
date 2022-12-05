@@ -2,56 +2,21 @@
   <div>
     <h1>Trend for {{ uid }} </h1>
     <div v-if="node">
-      <h2>{{ node.location }} - {{ node.sublocation }}</h2>
+      <h2>{{ node.metadata.location }} - {{ node.metadata.subLocation }}</h2>
       <table class="table">
         <tbody>
           <tr>
             <th>Parameter</th>
             <th>Min</th>
             <th>Max</th>
-            <th>Mean</th>
+            <!--th>Mean</th>
             <th>Standard Deviation</th>
-            <th>Variance</th>
+            <th>Variance</th-->
           </tr>
-          <tr v-if="node.isTemperature">
-            <td>{{ $t('params.param1') }}</td>
-            <td>{{ node.temperatureRange.min }}</td>
-            <td>{{ node.temperatureRange.max }}</td>
-
-<!--
-{
-  "co2Mean": null,
-  "co2Sigma": null,
-  "faulty_readings": 2,
-  "humidityMean": null,
-  "humiditySigma": null,
-  "temperatureMean": 87.29724770642203,
-  "temperatureSigma": 417.4485495189427,
-  "uid": "ABCDEF"
-}
--->
-            <td>{{ stats.temperatureMean }}</td>
-            <td>{{ stats.temperatureSigma }}</td>
-            <td>{{ stats.temperatureSigma*stats.temperatureSigma }}</td>
-          </tr>
-          <tr v-if="node.isHumidity">
-            <td>{{ $t('params.param2') }}</td>
-            <td>{{ node.temperatureRange.min }}</td>
-            <td>{{ node.humidityRange.min }}</td>
-            <td>{{ node.humidityRange.max }}</td>
-
-            <td>{{ stats.humidityMean }}</td>
-            <td>{{ stats.humiditySigma }}</td>
-            <td>{{ stats.humiditySigma*stats.humiditySigma }}</td>
-          </tr>
-          <tr v-if="node.isCO2">
-            <td>{{ $t('params.param3') }}</td>
-            <td>{{ node.co2Range.min }}</td>
-            <td>{{ node.co2Range.max }}</td>
-
-            <td>{{ stats.co2Mean }}</td>
-            <td>{{ stats.co2Sigma }}</td>
-            <td>{{ stats.co2Sigma*stats.co2Sigma }}</td>
+          <tr v-for="parameter in node.parameters" :key="parameter.label">
+            <td>{{ parameter.label }}</td>
+            <td>{{ parameter.min }}</td>
+            <td>{{ parameter.max }}</td>
           </tr>
         </tbody>
       </table>
@@ -104,7 +69,7 @@ export default {
     this.loading = true
     this.$store.dispatch('fetchNode', this.uid)
       .then(data => {
-        this.node = data
+        this.node = data[0]
       })
     this.$store.dispatch('fetchTrend', {
       uid: this.uid,
@@ -128,7 +93,7 @@ export default {
       from: this.$route.params.from,
       to: this.$route.params.to,
       loading: true,
-      chartData: [],
+      /* chartData: [], */
       stats: {},
       chartOptions: {
         credits: false,
@@ -178,63 +143,36 @@ export default {
       window.print()
     },
     constructData (readings) {
-      const csvData = []
 
-      let co2 = []
-      let humidity = []
-      let temperature = []
-
-      for(let reading of readings) {
-        let date = new Date(reading.datetime).toLocaleString(undefined, {timeZone: 'Asia/Kolkata'})
-        csvData.push({
-          date: date,
-          co2: parseFloat(reading.co2 || 0),
-          temperature: parseFloat(reading.temperature || 0),
-          humidity: parseFloat(reading.humidity || 0)
-        })
-
-        co2.push([
-          Date.parse(new Date(reading.datetime)),
-          parseFloat(reading.co2) || 0
-        ])
-
-        temperature.push([
-          Date.parse(new Date(reading.datetime)),
-          parseFloat(reading.temperature) || 0
-        ])
-
-        humidity.push([
-          Date.parse(new Date(reading.datetime)),
-          parseFloat(reading.humidity) || 0
-        ])
-
+      let reading = readings[0]
+      let parameters = {}
+      for (let i = 0; i < reading.values.length; i++) {
+        let param = reading.values[i].label
+          parameters[param] = []
       }
-
-      this.chartData.push(...csvData)
-
-      let idx = 0
-      if (this.node.isCO2) {
-        this.chartOptions.series.push({
-          name: this.$t('params.param3'),
-          data: []
-        })
-        this.chartOptions.series[idx].data.push(...co2)
-        idx++
+      for (let reading of readings) {
+        for (let i = 0; i < reading.values.length; i++) {
+          console.log({reading})
+          console.log(new Date(reading.datetime * 1000))
+          let param = reading.values[i].label
+          let value = parseFloat(reading.values[i].value) || 0
+          parameters[param].push([
+           new Date(reading.datetime * 1000),
+           value,
+          ])
+        }
       }
-      if (this.node.isTemperature) {
+      console.log(parameters)
+
+      let paramkeys = Object.keys(parameters)
+      console.log(paramkeys)
+      for (let i = 0; i < paramkeys.length; i++) {
+        let param = paramkeys[i]
+        console.log(param)
         this.chartOptions.series.push({
-          name: this.$t('params.param1'),
-          data: []
+          name: param,
+          data: parameters[param]
         })
-        this.chartOptions.series[idx].data.push(...temperature)
-        idx++
-      }
-      if (this.node.isHumidity) {
-        this.chartOptions.series.push({
-          name: this.$t('params.param2'),
-          data: []
-        })
-        this.chartOptions.series[idx].data.push(...humidity)
       }
     }
   }
