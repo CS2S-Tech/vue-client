@@ -45,20 +45,19 @@ export default {
   },
   props: ['sensor'],
   data() {
+    const labels = this.$store.getters.availableParameters
     return {
       isModify: false,
       curMin: 0,
       curMax: 100,
-      curUnit: '',
-      curLabel: 'Temperature',
+      curLabel: 'Voltage',
       paramLabels: [
         { key: 'label', label: 'Parameter'},
         { key: 'min', label: 'Min'},
         { key: 'max', label: 'Max'},
-        { key: 'unit', label: 'Unit'},
         { key: 'actions', label: 'Actions'}
       ],
-      labels: ['Temperature', 'Humidity', 'CO2'],
+      labels: labels,
       addNodeForm: {
         uid: '',
         metadata: {
@@ -102,7 +101,6 @@ export default {
       let labelToAdd = this.curLabel
       let min = this.curMin
       let max = this.curMax
-      let unit = this.curUnit
 
       let idx = this.labels.indexOf(labelToAdd)
       if (idx < 0) {
@@ -114,7 +112,6 @@ export default {
       this.addNodeForm.parameters.push({
         label: labelToAdd,
         min: min,
-        unit: unit,
         max: max
       })
     },

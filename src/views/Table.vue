@@ -6,14 +6,40 @@
 
     <h2>{{ uid }}</h2>
     <div v-if="nodes !== {}">
-      <h3>{{ nodes.location }} - {{ nodes.sublocation }}</h3>
+    <h3 v-if="nodes && nodes.length > 1 && nodes[0].metadata">
+      {{ nodes[0].metadata.location }} - {{ nodes[0].metadata.subLocation }}
+    </h3>
     </div>
-    <b-table :busy="loading" filter="/.*/" :filter-function="filterReadings" striped sticky-header hover :items="readings" :fields="fields" >
+    <table class="table">
+     <thead>
+      <tr>
+        <th> Datetime </th>
+        <th v-for="col in $store.getters.availableParameters" :key="col"> {{ col }}</th>
+      </tr>
+     </thead>
+     <tbody>
+       <tr v-for="reading in filteredReadings" :key="reading._id">
+        <td>
+          {{ new Date(reading.datetime * 1000).toLocaleString(undefined, {timeZone: 'Asia/Kolkata'})  }}
+        </td>
+        <td>
+          {{ reading.values[0].value }}
+        </td>
+        <td>
+          {{ reading.values[1].value }}
+        </td>
+        <td>
+          {{ reading.values[2].value }}
+        </td>
+       </tr>
+     </tbody>
+    </table>
+    <!--b-table :busy="loading" filter="/.*/" :filter-function="filterReadings" striped sticky-header hover :items="readings" :fields="fields" >
       <template #cell(datetime)="dt">
         {{ new Date(dt.value).toLocaleString(undefined, {timeZone: 'Asia/Kolkata'})  }}
       </template>
       <template #cell(temperature)="dt">
-        {{ dt.item.temperature }} &deg;C
+        {{ dt.item.value }} &deg;C
       </template>
       <template #cell(co2)="dt">
         {{ dt.item.co2 }} %
@@ -27,7 +53,7 @@
           <strong> Loading...</strong>
         </div>
       </template>
-    </b-table>
+    </b-table-->
   </div>
 </template>
 
@@ -53,34 +79,22 @@ export default {
   async mounted() {
     await this.getNode()
     await this.getReadings()
-
-
+  },
+  computed: {
+    filteredReadings() {
+      const x = this.readings.filter((r) => {
+        return r.values !== null
+      })
+      return x
+    },
   },
   methods: {
-    filterReadings(item) {
-      if (this.nodes.isTemperature && item.temperature === undefined) {
-        return false
-      }
-      if (this.nodes.isHumidity && item.humidity === undefined) {
-        return false
-      }
-      if (this.nodes.isCO2 && item.co2 === undefined) {
-        return false
-      }
+    filterReadings() {
       return true
     },
     async getNode() {
       this.$store.dispatch('fetchNode', this.uid).then(data => {
         this.nodes = data
-        if (data.isTemperature) {
-          this.fields.push(this.$t('params.param1'))
-        }
-        if (data.isHumidity) {
-          this.fields.push(this.$t('params.param2'))
-        }
-        if (data.isCO2) {
-          this.fields.push(this.$t('params.param3'))
-        }
       })
     },
     async getReadings() {

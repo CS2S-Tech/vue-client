@@ -76,7 +76,6 @@ parameters: this.sensor.parameters
         { key: 'label', label: 'Parameter'},
         { key: 'min', label: 'Min'},
         { key: 'max', label: 'Max'},
-        { key: 'unit', label: 'Unit'},
         { key: 'actions', label: 'Actions'}
       ],
       modifyNodeForm: {

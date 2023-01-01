@@ -39,7 +39,7 @@
               </tr>
               <tr v-for="parameter in sensor.parameters" :key="parameter.label">
                 <td>{{ parameter.label }} </td>
-                <td class="value">{{ getByLabel(sensor.reading, parameter.label).value }} </td>
+                <td class="value">{{ getByLabel(sensor.reading, parameter.label).value || '' }} </td>
               </tr>
             </table>
             <hr>
@@ -112,7 +112,15 @@ export default {
   },
   methods: {
      getByLabel(values, label) {
-       return values.filter(f => f.label===label.toLocaleLowerCase())[0]
+       const defVal = {value: 'None'}
+       if (values == null || values.length == 0) {
+         return defVal
+       }
+       const filtered = values.filter(f => f.label.toLocaleLowerCase()===label.toLocaleLowerCase())
+       if (filtered.length < 1) {
+         return defVal
+       }
+       return filtered[0]
      },
     copyUID (uid) {
       try {

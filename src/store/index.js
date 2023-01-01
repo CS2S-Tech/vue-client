@@ -66,7 +66,9 @@ export default new Vuex.Store({
     getLogInStatus: state => state.loggedIn,
     isLoading: state => state.loading,
     getPrivilege: state => designationArray.indexOf(state.designation),
-    getFaulties: state => state.faulties
+    getFaulties: state => state.faulties,
+    availableParameters: () => ['Voltage', 'Current', 'Energy']
+
   },
   plugins: [createPersistedState({ storage: window.sessionStorage })]
 })

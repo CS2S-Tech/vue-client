@@ -215,7 +215,7 @@ export default {
         })
     },
     async deleteNode(uid) {
-      this.$bvModal.msgBoxConfirm(`Are you sure you want to retore the node: ${uid}?`)
+      this.$bvModal.msgBoxConfirm(`Are you sure you want to delete the node: ${uid}?`)
         .then(confirmation => {
           if(confirmation) {
             this.$store.dispatch('deleteNode', uid)

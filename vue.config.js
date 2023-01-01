@@ -23,18 +23,18 @@ module.exports = {
     port: 8080,
     hotOnly: false,
     proxy: {
-      '/server/node': {
-        target: 'http://localhost:8081/',
-        // target: 'http://103.168.165.44/server',
-        ws: true,
-        changeOrigin: true,
-        pathRewrite: {
-          '^/server/node': ''
-        }
-      },
+      // '/server/node': {
+      //   target: 'http://103.168.165.46:8000/server/node',
+      //   // target: 'http://103.168.165.44/server',
+      //   ws: true,
+      //   changeOrigin: true,
+      //   pathRewrite: {
+      //     '^/server/node': ''
+      //   }
+      // },
       '/server': {
-        target: 'http://localhost:3000/',
-        // target: 'http://103.168.165.44/server',
+        // target: 'http://localhost:3000/',
+        target: 'http://103.168.165.46/server',
         ws: true,
         changeOrigin: true,
         pathRewrite: {

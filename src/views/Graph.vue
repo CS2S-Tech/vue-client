@@ -25,7 +25,7 @@
       <b>{{ formateDate(from) }}</b>
       to
       <b>{{ formateDate(to) }}</b>
-      <p> Total readings beyond setpoints: {{ stats.faulty_readings }} </p>
+      <!--p> Total readings beyond setpoints: {{ stats.faulty_readings }} </p-->
     </div>
     <vue-loaders-ball-beat color="grey" scale="1" v-if="loading"/>
       <div v-else>
@@ -78,12 +78,12 @@ export default {
     })
     .then(this.constructData)
 
-    this.$store.dispatch('fetchStats', {
-      uid: this.uid,
-      }).then(d => {
-        console.log({d})
-        this.stats = {...d}
-        })
+    /* this.$store.dispatch('fetchStats', { */
+    /*   uid: this.uid, */
+    /*   }).then(d => { */
+    /*     console.log({d}) */
+    /*     this.stats = {...d} */
+    /*     }) */
     this.loading = false
   },
   data() {
@@ -127,7 +127,7 @@ export default {
     formateDate(date) {
       let unx = Date.parse(date)
       unx = unx - (330*60*1000)
-      return new Date(unx).toLocaleString()
+      return new Date(unx).toLocaleString(undefined, {timeZone: 'Asia/Kolkata'})
     },
     goToTable() {
       this.$router.push({
@@ -144,20 +144,23 @@ export default {
     },
     constructData (readings) {
 
-      let reading = readings[0]
       let parameters = {}
-      for (let i = 0; i < reading.values.length; i++) {
-        let param = reading.values[i].label
-          parameters[param] = []
+      for (let i = 0; i < this.$store.getters.availableParameters.length; i++) {
+        let param = this.$store.getters.availableParameters[i]
+        parameters[param] = []
       }
+      console.log(parameters)
       for (let reading of readings) {
+        if (reading.values == null) {
+          continue
+        }
         for (let i = 0; i < reading.values.length; i++) {
           console.log({reading})
-          console.log(new Date(reading.datetime * 1000))
           let param = reading.values[i].label
           let value = parseFloat(reading.values[i].value) || 0
           parameters[param].push([
-           new Date(reading.datetime * 1000),
+           /* new Date(reading.datetime * 1000), */
+           new Date(reading.datetime*1000).toLocaleString(undefined, {timeZone: 'Asia/Kolkata'}),
            value,
           ])
         }
@@ -174,6 +177,7 @@ export default {
           data: parameters[param]
         })
       }
+      console.log(this.chartOptions.series)
     }
   }
 }
