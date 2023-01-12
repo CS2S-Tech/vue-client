@@ -73,8 +73,8 @@ export default {
       })
     this.$store.dispatch('fetchTrend', {
       uid: this.uid,
-      from: this.from,
-      to: this.to
+      from: this.from.toString(),
+      to: this.to.toString()
     })
     .then(this.constructData)
 
@@ -125,9 +125,9 @@ export default {
   },
   methods: {
     formateDate(date) {
-      let unx = Date.parse(date)
-      unx = unx - (330*60*1000)
-      return new Date(unx).toLocaleString(undefined, {timeZone: 'Asia/Kolkata'})
+      /* let unx = Date.parse(date) */
+      /* unx = unx - (330*60*1000) */
+      return new Date(date * 1000).toLocaleString('en-IN', {timeZone: 'Asia/Kolkata'})
     },
     goToTable() {
       this.$router.push({
@@ -160,7 +160,7 @@ export default {
           let value = parseFloat(reading.values[i].value) || 0
           parameters[param].push([
            /* new Date(reading.datetime * 1000), */
-           new Date(reading.datetime*1000).toLocaleString(undefined, {timeZone: 'Asia/Kolkata'}),
+           Date.parse(new Date(reading.datetime*1000).toLocaleString('en-IN', {timeZone: 'Asia/Kolkata'})),
            value,
           ])
         }

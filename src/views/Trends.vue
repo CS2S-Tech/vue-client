@@ -54,8 +54,11 @@ export default {
   methods: {
     watchTrend() {
       console.log(this.start, this.end)
-      let from = this.start + ':00.000Z'
-      let to = this.end + ':00.000Z'
+
+      let from = new Date(this.start).getTime()/1000
+      let to = new Date(this.end).getTime()/1000
+      console.log(from, to)
+      /* this.$router.push({name: 'Graph', params: { uid: this.uid, from : from, to: to}}) */
       this.$router.push({name: 'Graph', params: { uid: this.uid, from : from, to: to}})
     }
   }

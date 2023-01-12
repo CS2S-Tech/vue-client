@@ -51,6 +51,10 @@ export default {
     getParamValue(sensor,param) {
       const expected = param
       const expectedLower = param.toLowerCase()
+      console.log({sensor})
+      if (sensor.reading == null) {
+        return "-"
+      }
       const match = sensor.reading.filter((x) => {
         return x.label === expected || x.label === expectedLower
       })[0]

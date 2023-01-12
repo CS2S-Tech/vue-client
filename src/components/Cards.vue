@@ -39,7 +39,10 @@
               </tr>
               <tr v-for="parameter in sensor.parameters" :key="parameter.label">
                 <td>{{ parameter.label }} </td>
-                <td class="value">{{ getByLabel(sensor.reading, parameter.label).value || '' }} </td>
+                <td class="value">
+                {{ getByLabel(sensor.reading, parameter.label).value || '' }}
+                {{ getUnit(parameter.label) }}
+                </td>
               </tr>
             </table>
             <hr>
@@ -90,6 +93,12 @@ import { mapGetters } from 'vuex';
 /* import BatteryLow from 'vue-material-design-icons/BatteryLow.vue'; */
 // import { designationArray } from '../common/designation';
 
+const units = {
+  'Voltage': 'V',
+  'Current': 'A',
+  'Energy': 'Wh',
+}
+
 export default {
   name: 'Cards',
   props: [ 'sensors', ],
@@ -111,6 +120,9 @@ export default {
     ...mapGetters({loading: 'isLoading'})
   },
   methods: {
+     getUnit(label) {
+      return units[label] 
+     },
      getByLabel(values, label) {
        const defVal = {value: 'None'}
        if (values == null || values.length == 0) {

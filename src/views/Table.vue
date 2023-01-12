@@ -20,7 +20,7 @@
      <tbody>
        <tr v-for="reading in filteredReadings" :key="reading._id">
         <td>
-          {{ new Date(reading.datetime * 1000).toLocaleString(undefined, {timeZone: 'Asia/Kolkata'})  }}
+          {{ new Date(reading.datetime * 1000).toLocaleString('en-IN', {timeZone: 'Asia/Kolkata'})  }}
         </td>
         <td>
           {{ reading.values[0].value }}
@@ -101,8 +101,8 @@ export default {
       console.log( this.uid, this.from , this.to )
       this.$store.dispatch('fetchTrend', {
         uid: this.uid,
-        from: this.from,
-        to: this.to
+        from: this.from.toString(),
+        to: this.to.toString()
       }).then(r => {
         this.readings = r
         this.loading = false
