@@ -2,6 +2,7 @@
 node_modules
 dist
 client
+client.tgz
 
 # local env files
 .env*
