@@ -41,7 +41,7 @@
                 <td>{{ parameter.label }} </td>
                 <td class="value">
                 {{ getByLabel(sensor.reading, parameter.label).value || '' }}
-                {{ getUnit(parameter.label) }}
+                <!--{{ getUnit(parameter.label) }} -->
                 </td>
               </tr>
             </table>
@@ -61,7 +61,7 @@
           </b-card-text>
           <template class="c-footer" #footer>
             <div>
-             Last Update at: {{ formatDate(sensor.datetime) }}
+             Last Update at: {{ formatDate(sensor.modifiedOn ) }}
              <br>
              {{ checkOffline(sensor) }} ago
             </div>
@@ -121,10 +121,11 @@ export default {
   },
   methods: {
      getUnit(label) {
-      return units[label] 
+      return units[label]
      },
      getByLabel(values, label) {
-       const defVal = {value: 'None'}
+       const unitStr = this.getUnit(label)
+       const defVal = {value: 'None'} //``` ${unitStr}`}
        if (values == null || values.length == 0) {
          return defVal
        }
@@ -132,14 +133,14 @@ export default {
        if (filtered.length < 1) {
          return defVal
        }
-       return filtered[0]
+       return filtered[0] + ` ${unitStr}`
      },
     copyUID (uid) {
       try {
         navigator.clipboard.writeText(uid.trim())
         this.$bvToast.toast('UID copied to the clipboard')
       } catch (e) {
-        this.$bvToast.toast('Cannot copy UID: Permission Denied')
+        this.$bvToast.toast('Cannot copy UID in a non-HTTPS website')
       }
     },
     showModify(node) {
@@ -175,7 +176,7 @@ export default {
         })
     },
     checkOffline(sensor) {
-      const dt = new Date(sensor.datetime*1000) 
+      const dt = new Date(sensor.modifiedOn*1000)
       const dateDiff_hrs = Math.floor((new Date() - dt) / 1000 / 3600 ) ;
       if (dateDiff_hrs > 24) {
         return Math.floor(dateDiff_hrs / 24) + " days"
@@ -183,6 +184,7 @@ export default {
       return dateDiff_hrs + " hrs"
     },
     formatDate(date) {
+      console.log(date)
       return new Date(date*1000).toLocaleString('en-IN')
     }
   }
