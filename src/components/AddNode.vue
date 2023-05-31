@@ -45,12 +45,13 @@ export default {
   },
   props: ['sensor'],
   data() {
-    const labels = this.$store.getters.availableParameters
+    const labels = [...this.$store.getters.availableParameters]
+    // const labels = this.$store.getters.availableParameters
     return {
       isModify: false,
       curMin: 0,
       curMax: 100,
-      curLabel: 'Voltage',
+      curLabel: labels[0],
       paramLabels: [
         { key: 'label', label: 'Parameter'},
         { key: 'min', label: 'Min'},
@@ -81,8 +82,8 @@ export default {
         this.labels.splice(idx, 1)
         this.curLabel = this.labels[0]
       }
-      this.addNodeForm = {...sensor} 
-      
+      this.addNodeForm = {...sensor}
+
     }
 
   },
@@ -117,8 +118,8 @@ export default {
     },
     async addNode() {
       let action = this.isModify ? 'modifyNode' : 'addNode';
-      let toastMsg = this.isModify ? 'Node updated' : 'Node added'; 
-      let modalToHide = this.isModify ? 'modifyForm' : 'nodeForm'; 
+      let toastMsg = this.isModify ? 'Node updated' : 'Node added';
+      let modalToHide = this.isModify ? 'modifyForm' : 'nodeForm';
       let node = {...this.addNodeForm}
       this.$store.dispatch(action, node)
         .then(() => {
