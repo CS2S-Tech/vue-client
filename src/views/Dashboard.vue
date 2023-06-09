@@ -111,33 +111,17 @@ export default {
           this.$store.dispatch('fetchSensors', 0)
         }
         if (this.$store.getters.getSensors.length != 0) {
-
-
           this.healthyNodes = this.$store.getters.getSensors
-          /*
-          this.healthyNodes = this.$store.getters.getSensors.filter((node) => {
-            const co2_ok = this.applyLogic(node.isCO2, this.checkOK(node.co2Range, node.reading.co2))
-            const temp_ok = this.applyLogic(node.isTemperature, this.checkOK(node.temperatureRange, node.reading.temperature))
-            const hum_ok = this.applyLogic(node.isHumidity, this.checkOK(node.humidityRange, node.reading.humidity))
-            return co2_ok && temp_ok && hum_ok
-          })
-            .sort((a, b) => { return ('' + a.uid).localeCompare(b.uid) })
-          this.faultyNodes = this.$store.getters.getSensors.filter((node) => {
-            const co2_ok = this.applyLogic(node.isCO2, this.checkOK(node.co2Range, node.reading.co2))
-            const temp_ok = this.applyLogic(node.isTemperature, this.checkOK(node.temperatureRange, node.reading.temperature))
-            const hum_ok = this.applyLogic(node.isHumidity, this.checkOK(node.humidityRange, node.reading.humidity))
-            return !(co2_ok && temp_ok && hum_ok)
-          })
-            .sort((a, b) => { return ('' + a.uid).localeCompare(b.uid) })
-            */
         }
 
         this.$store.commit('setFaulties', this.faultyNodes)
+        if (this.$store.getters.isLoading) {
+          this.$store.commit('loaded')
+        }
         return
       }
       , 10000)
     this.$store.dispatch('fetchSensors').then(() => {
-      this.$store.commit('loaded')
     })
 
     this.notificationService = setInterval(() => {
