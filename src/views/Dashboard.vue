@@ -88,7 +88,7 @@ export default {
   },
   data() {
     return {
-      fetchSensors: null,
+      fetchSensorsInterval: null,
       notificationService: null,
       ip: window.location.host,
       server: process.env.VUE_APP_HOST,
@@ -102,25 +102,8 @@ export default {
       this.$router.push('/')
     }
     this.$store.commit('loading')
-    this.fetchSensors = setInterval(
-      () => {
-        if (this.$route.name !== 'Dashboard') {
-          return
-        }
-        if(this.$store.getters.getLogInStatus) {
-          this.$store.dispatch('fetchSensors', 0)
-        }
-        if (this.$store.getters.getSensors.length != 0) {
-          this.healthyNodes = this.$store.getters.getSensors
-        }
-
-        this.$store.commit('setFaulties', this.faultyNodes)
-        if (this.$store.getters.isLoading) {
-          this.$store.commit('loaded')
-        }
-        return
-      }
-      , 10000)
+    this.fetchSensors(this)
+    this.fetchSensorsInterval = setInterval(this.fetchSensors(this), 10000)
     this.$store.dispatch('fetchSensors').then(() => {
     })
 
@@ -140,10 +123,29 @@ export default {
   },
   destroyed () {
     console.log('removing interval')
-    clearInterval(this.fetchSensors)
+    clearInterval(this.fetchSensorsInterval)
     clearInterval(this.notificationService)
   },
   methods: {
+    fetchSensors(self) {
+      return () => {
+        if (self.$route.name !== 'Dashboard') {
+          return
+        }
+        if(self.$store.getters.getLogInStatus) {
+          self.$store.dispatch('fetchSensors', 0)
+        }
+        if (self.$store.getters.getSensors.length != 0) {
+          self.healthyNodes = self.$store.getters.getSensors
+        }
+
+        self.$store.commit('setFaulties', self.faultyNodes)
+        if (self.$store.getters.isLoading) {
+          self.$store.commit('loaded')
+        }
+        return
+      }
+    },
     addNode() {
       if (this.$store.getters.getPrivilege > 2) {
         this.$bvToast.toast('You are not authorized to perform this action')
