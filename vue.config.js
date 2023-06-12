@@ -25,7 +25,7 @@ module.exports = {
     proxy: {
       '/server': {
         // target: 'http://localhost:3000/',
-        target: 'http://103.168.165.44/server',
+        target: 'http://103.168.165.46:8000/server',
         ws: true,
         changeOrigin: true,
         pathRewrite: {
